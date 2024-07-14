@@ -20,6 +20,8 @@ import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { Select, SelectContent, SelectTrigger, SelectValue } from "./ui/select";
 import { Textarea } from "./ui/textarea";
+import { Checkbox } from "./ui/checkbox";
+import { Label } from "./ui/label";
 
 interface CustomFormFieldProps {
   control: Control<any>;
@@ -165,6 +167,21 @@ const RenderField = ({
         </FormControl>
       );
 
+    case FormFieldType.CHECKBOX:
+      return (
+        <FormControl>
+          <div className="flex gap-4 items-center">
+            <Checkbox
+              id={name}
+              checked={field.value}
+              onCheckedChange={field.onChange}
+            />
+            <Label htmlFor={name} className="checkbox-label">
+              {label}
+            </Label>
+          </div>
+        </FormControl>
+      );
     default:
       break;
   }

@@ -5,7 +5,7 @@ declare type SearchParamProps = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-declare type Gender = "Male" | "Female";
+declare type Gender = "male" | "female";
 declare type Status = "pending" | "scheduled" | "cancelled";
 
 declare interface CreateUserParams {
@@ -39,7 +39,7 @@ declare interface RegisterUserParams extends CreateUserParams {
 }
 
 declare type CreateAppointmentParams = {
-  userId: string;
+  userID: string;
   patient: string;
   primaryPhysician: string;
   reason: string;
@@ -49,8 +49,8 @@ declare type CreateAppointmentParams = {
 };
 
 declare type UpdateAppointmentParams = {
-  appointmentId: string;
-  userId: string;
+  appointmentID: string;
+  userID: string;
   appointment: Appointment;
   type: string;
 };

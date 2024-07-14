@@ -1,6 +1,17 @@
+"use server";
+
 import { ID, Query } from "node-appwrite";
-import { users } from "../appwrite.config";
+import {
+  BUCKET_ID,
+  DATABASE_ID,
+  databases,
+  PATIENT_COLLECTION_ID,
+  storage,
+  users,
+} from "../appwrite.config";
 import { parseStringify } from "../utils";
+
+import { InputFile } from "node-appwrite/file";
 
 export const createUser = async (user: CreateUserParams) => {
   try {
@@ -25,6 +36,56 @@ export const getUser = async (userID: string) => {
   try {
     const user = await users.get(userID);
     return parseStringify(user);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const getPatient = async (userID: string) => {
+  try {
+    const patients = await databases.listDocuments(
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+      [Query.equal("userID", userID)]
+    );
+    return parseStringify(patients.documents[0]);
+  } catch (error) {
+    console.log(error);
+  }
+};
+
+export const registerPatient = async ({
+  identificationDocument,
+  ...patient
+}: RegisterUserParams) => {
+  try {
+    let file;
+
+    if (identificationDocument) {
+      const inputFile = InputFile.fromBuffer(
+        identificationDocument?.get("blobFile") as Blob,
+        identificationDocument?.get("fileName") as string
+      );
+
+      file = await storage.createFile(
+        process.env.NEXT_PUBLIC_BUCKET_ID!,
+        ID.unique(),
+        inputFile
+      );
+    }
+
+    const newPatient = await databases.createDocument(
+      process.env.NEXT_PUBLIC_DATABASE_ID!,
+      process.env.NEXT_PUBLIC_PATIENT_COLLECTION_ID!,
+      ID.unique(),
+      {
+        identificationDocumentId: file?.$id || null,
+        identificationDocumentUrl: `${process.env.NEXT_PUBLIC_ENDPOINT}/storage/buckets/${process.env.NEXT_PUBLIC_BUCKET_ID}/files/${file?.$id}/view?project=${process.env.NEXT_PUBLIC_PROJECT_ID}`,
+        ...patient,
+      }
+    );
+
+    return parseStringify(newPatient);
   } catch (error) {
     console.log(error);
   }
